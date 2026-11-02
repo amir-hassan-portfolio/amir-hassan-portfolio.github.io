@@ -1,25 +1,31 @@
 'use strict';
 const menu=document.querySelector('.menu'),nav=document.getElementById('navigation');menu.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));nav.classList.toggle('open',open)});nav.addEventListener('click',e=>{if(e.target.closest('a')){menu.setAttribute('aria-expanded','false');nav.classList.remove('open')}});document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.setAttribute('aria-expanded','false');nav.classList.remove('open')}});
 const groups=[{title:'Ameer Khan Enclave',category:'planning',tag:'TOWN PLANNING / MASTER PLAN',description:'Housing scheme master plan · Plot subdivision · Road network',sheets:[['assets/project-6-0.png','Master plan']]},{title:'10 Marla House Plan',category:'residential',tag:'RESIDENTIAL / 10 MARLA',description:'Ground floor · First floor · Mummty plan',sheets:[['assets/project-7-0.png','Ground floor','2 BEDROOMS WITH ATTACH BATHS, KITCHEN+DIRT, LIVING, DRAWING, STAIRS CASE, LAWN AND POURCH'],['assets/project-8-0.png','First floor','3 BEDROOMS WITH ATTACH BATHS, KITCHEN+DIRT, LIVING STAIRS CASE AND TERRACE'],['assets/project-9-0.png','Mummty plan','1 BEDROOMS WITH ATTACH BATH, SETTING,STAIRS CASE AND TERRACE']]},{title:'08 Marla House Plan',category:'residential',tag:'RESIDENTIAL / 08 MARLA',description:'Floor plans · Architectural elevation · Section view',sheets:[['assets/project-10-0.png','First floor','3 Bedrooms with attach baths, living, kitchen, dinning, terrace and stairs'],['assets/project-11-0.png','Mummty','terrace and stairs'],['assets/project-12-0.png','Front Elevation plan'],['assets/project-12-1.jpeg','Front Elevation plan'],['assets/project-13-0.png','Section view']]}];
+groups[0].pdf='projects/ameer-khan-enclave.pdf';groups[0].pages=1;
+groups[1].pdf='projects/10-marla-house-plan.pdf';groups[1].pages=3;
+groups[2].pdf='projects/8-marla-house-plan.pdf';groups[2].pages=5;
+groups[2].description='Ground floor · First floor · Mummty · Front elevation · Section';
+groups[2].features=['Ground floor','First floor','Mummty','Front elevation','Section view'];
+groups.splice(1,0,{title:'Vista Valley',category:'planning',tag:'TOWN PLANNING / MASTER PLAN',description:'Housing scheme master plan · Residential plots · Avenues and road network',pdf:'projects/vista-valley.pdf',pages:1,features:['Residential plot layout','Avenues and road network','Parks and community spaces'],sheets:[['assets/vista-valley-preview.png','Master plan']]});
 const gallery=document.getElementById('gallery'),allImages=[];let viewerStart=0,viewerEnd=0;
 groups.forEach((group,groupIndex)=>{
  group.start=allImages.length;
  group.sheets.forEach(sheet=>allImages.push({src:sheet[0],title:group.title+' / '+sheet[1]}));
  group.end=allImages.length-1;
  const article=document.createElement('article');article.className='project project-card';article.dataset.category=group.category;
- const cover=document.createElement('button');cover.className='project-cover';cover.setAttribute('aria-label','View full drawings for '+group.title);
+ const cover=document.createElement('a');cover.className='project-cover';cover.href=group.pdf;cover.target='_blank';cover.rel='noopener noreferrer';cover.setAttribute('aria-label','View full drawings for '+group.title);
  const primary=document.createElement('img');primary.src=group.sheets[0][0];primary.alt=group.title+' drawing preview';primary.loading='lazy';cover.append(primary);
  if(group.sheets.length>1){const secondary=document.createElement('img');secondary.src=group.sheets[group.sheets.length-1][0];secondary.alt='';secondary.loading='lazy';secondary.className='cover-detail';cover.append(secondary);}
- const count=document.createElement('span');count.className='sheet-count';count.textContent=group.sheets.length+' drawing'+(group.sheets.length===1?'':'s');cover.append(count);
- cover.addEventListener('click',()=>openProject(groupIndex));article.append(cover);
+ const count=document.createElement('span');count.className='sheet-count';count.textContent=group.pages+'-page PDF';cover.append(count);
+ article.append(cover);
  const content=document.createElement('div');content.className='project-card-content';
  const tag=document.createElement('p');tag.className='eyebrow';tag.textContent=group.tag;content.append(tag);
  const heading=document.createElement('h3');heading.textContent=group.title;content.append(heading);
  const description=document.createElement('p');description.textContent=group.description;content.append(description);
  const features=document.createElement('ul');features.className='project-features';
- const labels=group.category==='planning'?['Housing scheme master plan','Plot subdivision','Road network']:[...new Set(group.sheets.map(sheet=>sheet[1]))];
+ const labels=group.features|| (group.category==='planning'?['Housing scheme master plan','Plot subdivision','Road network']:[...new Set(group.sheets.map(sheet=>sheet[1]))]);
  labels.forEach(label=>{const item=document.createElement('li');item.textContent=label;features.append(item)});content.append(features);
- const open=document.createElement('button');open.type='button';open.className='button outline view-project';open.textContent='View full drawings ↗';open.setAttribute('aria-label','View full drawings for '+group.title);open.addEventListener('click',()=>openProject(groupIndex));content.append(open);
+ const actions=document.createElement('div');actions.className='project-pdf-actions';const open=document.createElement('a');open.href=group.pdf;open.target='_blank';open.rel='noopener noreferrer';open.className='button outline view-project';open.textContent='View full drawings ↗';open.setAttribute('aria-label','View full PDF drawings for '+group.title);actions.append(open);const download=document.createElement('a');download.href=group.pdf;download.download=group.pdf.split('/').pop();download.className='download-pdf';download.textContent='Download PDF ↓';download.setAttribute('aria-label','Download '+group.title+' PDF');actions.append(download);content.append(actions);
  article.append(content);gallery.append(article);
 });
 function openProject(index){const group=groups[index];viewerStart=group.start;viewerEnd=group.end;openImage(group.start)}
